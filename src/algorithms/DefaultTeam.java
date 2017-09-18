@@ -27,56 +27,61 @@ public class DefaultTeam {
 		return links;
 	}
 	
-	private static int nbCycles = 0;
-	public void countCycles(ArrayList<Point> pts, List<List<Integer>> succ, int parent, boolean[] visited) {
-		
-		for (int i = 0; i < pts.size(); i++) {
-			if (visited[i]) return;
-			visited[i] = true;
-			
-			for (int s : succ.get(i)) { 
-				if (s == parent) continue;
-				if (visited[s]) {
-					System.out.println(s);
-					System.out.println(i);
-					nbCycles++;
-				}
-				else {
-					countCycles(pts, succ, i, visited);
-				}
-			}
-		}
-	}
-	
-	private int count(ArrayList<Point> pts, List<List<Integer>> succ) {
-		int nbCycles = 0;
-		Stack<Integer> toVisit = new Stack<>();
-		toVisit.push(0);
-		
-		while (!toVisit.isEmpty()) {
-			int pt = toVisit.pop();
-			
-			List<Integer> succs = succ.get(pt);
-			for (int i = 0; i < succs.size(); i++) {
-				
-			}
-		}
-		
-		return nbCycles;
-	}
+//	private static int nbCycles = 0;
+//	public void countCycles(ArrayList<Point> pts, List<List<Integer>> succ, int parent, boolean[] visited) {
+//		
+//		for (int i = 0; i < pts.size(); i++) {
+//			if (visited[i]) return;
+//			visited[i] = true;
+//			
+//			for (int s : succ.get(i)) { 
+//				if (s == parent) continue;
+//				if (visited[s]) {
+//					System.out.println(s);
+//					System.out.println(i);
+//					nbCycles++;
+//				}
+//				else {
+//					countCycles(pts, succ, i, visited);
+//				}
+//			}
+//		}
+//	}
+//	
+//	private int count(ArrayList<Point> pts, List<List<Integer>> succ) {
+//		int nbCycles = 0;
+//		Stack<Integer> toVisit = new Stack<>();
+//		toVisit.push(0);
+//		int parent = -1;
+//		
+//		while (!toVisit.isEmpty()) {
+//			int pt = toVisit.pop();
+//			
+//			List<Integer> succs = succ.get(pt);
+//			for (int i = 0; i < succs.size(); i++) {
+//				if (parent == succs.get(i)) continue;
+//			}
+//		}
+//		
+//		return nbCycles;
+//	}
 	
 
   public ArrayList<Point> calculFVS(ArrayList<Point> points) {
     ArrayList<Point> fvs = new ArrayList<Point>();
+    ArrayList<Point> rest = (ArrayList<Point>) points.clone();
     
-    List<List<Integer>> succ = computeLinks(points);
-    countCycles(points,  succ,  -1, new boolean[points.size()]);
-    System.out.println(nbCycles);
-    
-    for(int i=0;i<5*points.size()/6;i++){
-      fvs.add(points.get(i));
+    while (!Evaluation.isValide(rest, fvs)) {
+    		Point p_max = rest.get(0);
+    		for (Point p : rest) {
+    			if (Evaluation.neighbor(p, rest).size() > Evaluation.neighbor(p_max, rest).size()) {
+    				p_max = p;
+    			}
+    		}
+    		rest.remove(p_max);
+    		fvs.add(p_max);
     }
-
+    
     return fvs;
   }
 }

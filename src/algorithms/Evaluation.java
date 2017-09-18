@@ -3,10 +3,10 @@ import java.util.ArrayList;
 import java.awt.Point;
 
 public class Evaluation {
-  private boolean isMember(ArrayList<Point> points, Point p){
+  private static boolean isMember(ArrayList<Point> points, Point p){
     for (Point point:points) if (point.equals(p)) return true; return false;
   }
-  public boolean isValide(ArrayList<Point> origPoints, ArrayList<Point> fvs){
+  public static boolean isValide(ArrayList<Point> origPoints, ArrayList<Point> fvs){
     ArrayList<Point> vertices = new ArrayList<Point>();
     for (Point p:origPoints) if (!isMember(fvs,p)) vertices.add((Point)p.clone());
 
@@ -32,7 +32,7 @@ public class Evaluation {
     return true;
   }
   
-  private ArrayList<Point> neighbor(Point p, ArrayList<Point> vertices){
+  public static ArrayList<Point> neighbor(Point p, ArrayList<Point> vertices){
     ArrayList<Point> result = new ArrayList<Point>();
 
     for (Point point:vertices) if (point.distance(p)<100 && !point.equals(p)) result.add((Point)point.clone());
