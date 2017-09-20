@@ -65,23 +65,63 @@ public class DefaultTeam {
 //		
 //		return nbCycles;
 //	}
+	public ArrayList<Point> greedyFVS(ArrayList<Point> points) {
+		ArrayList<Point> fvs = new ArrayList<Point>();
+	    ArrayList<Point> rest = (ArrayList<Point>) points.clone();
+	    
+	    while (!Evaluation.isValide(rest, fvs)) {
+	    		Point p_max = rest.get(0);
+	    		for (Point p : rest) {
+	    			if (Evaluation.neighbor(p, rest).size() > Evaluation.neighbor(p_max, rest).size()) {
+	    				p_max = p;
+	    			}
+	    		}
+	    		rest.remove(p_max);
+	    		fvs.add(p_max);
+	    }
+	    
+	    return fvs;
+	}
 	
+	public ArrayList<Point> doLocalSearch(ArrayList<Point> points, ArrayList<Point> fvs) {
+		ArrayList<Point> newFvs;
+		
+		int i=0;
+	    for (Point p : fvs) {
+	    		System.out.println(i++ + "of "+ fvs.size());
+	    		for (Point q : fvs) {
+	    			if (p.equals(q)) {
+	    				continue;
+	    			}
+	    			newFvs = (ArrayList<Point>) fvs.clone();
+	    			newFvs.remove(p);
+	    			newFvs.remove(q);
+	    			for (Point o : points) {
+	    				newFvs.add(o);
+	    				if (Evaluation.isValide(points, newFvs)) {
+		    				return newFvs;
+		    			}
+	    				newFvs.remove(o);
+	    			}
+	    		}
+	    }
+	    
+	    return fvs;
+	}
+	
+	public ArrayList<Point> localSearch(ArrayList<Point> points, ArrayList<Point> fvs) {
+		ArrayList<Point> newFvs = fvs;
+		
+		do {
+			fvs = newFvs;
+			newFvs = doLocalSearch(points, fvs);
+			System.out.println("Improved solution found");
+		} while (newFvs.size() < fvs.size());
+	    
+	    return newFvs;
+	}
 
   public ArrayList<Point> calculFVS(ArrayList<Point> points) {
-    ArrayList<Point> fvs = new ArrayList<Point>();
-    ArrayList<Point> rest = (ArrayList<Point>) points.clone();
-    
-    while (!Evaluation.isValide(rest, fvs)) {
-    		Point p_max = rest.get(0);
-    		for (Point p : rest) {
-    			if (Evaluation.neighbor(p, rest).size() > Evaluation.neighbor(p_max, rest).size()) {
-    				p_max = p;
-    			}
-    		}
-    		rest.remove(p_max);
-    		fvs.add(p_max);
-    }
-    
-    return fvs;
+    return localSearch(points, greedyFVS(points));
   }
 }
