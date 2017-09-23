@@ -2,8 +2,14 @@ package algorithms;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Stream;
 
 public class DefaultTeam {
 	public static int THRESHOLD = 100;
@@ -83,26 +89,85 @@ public class DefaultTeam {
 	    return fvs;
 	}
 	
+	public int cycleness(ArrayList<Point> points) {
+		int cycleness = 0;
+		Set<Point> visited = new HashSet<>();
+		
+		for (Point source : points) {
+			if (visited.contains(source)) continue;
+			
+			Queue<Point> queue = new LinkedList<>();
+			queue.add(source);
+		
+			while(!queue.isEmpty()) {
+				Point p = queue.remove();
+				if (visited.contains(p)) {
+					cycleness++;
+				} else {
+					visited.add(p);
+					List<Point> neighbors = Evaluation.neighbor(p, points);
+					for(Point q : neighbors) {
+						if (!visited.contains(q)) {
+							queue.add(q);
+						}
+					}
+				}
+			}
+		}
+		
+		return cycleness;
+	}
+	
+	public ArrayList<Point> greedyByCycleness(ArrayList<Point> points) {
+		ArrayList<Point> fvs = new ArrayList<Point>();
+	    ArrayList<Point> rest = (ArrayList<Point>) points.clone();
+	    ArrayList<Point> points2 = (ArrayList<Point>) points.clone(); // prefer not to modify points
+	    
+	    while (!Evaluation.isValide(rest, fvs)) {
+	    		Point p_max = null;
+	    		int c_min = Integer.MAX_VALUE; // min cycleness, what we try to minimize
+	    
+	    		for (Point p : rest) {
+	    			points2.remove(p);
+	    			int c = cycleness(points2);
+	    			points2.add(p);
+	    			
+	    			if (c < c_min) {
+	    				c_min = c;
+	    				p_max = p;
+	    			}
+	    		}
+	    		
+	    		rest.remove(p_max);
+	    		fvs.add(p_max);
+	    }
+	    
+	    return fvs;
+	}
+	
 	public ArrayList<Point> doLocalSearch(ArrayList<Point> points, ArrayList<Point> fvs) {
-		ArrayList<Point> newFvs;
+		ArrayList<Point> newFvs = (ArrayList<Point>) fvs.clone();
 		
 		int i=0;
 	    for (Point p : fvs) {
 	    		System.out.println(i++ + "of "+ fvs.size());
 	    		for (Point q : fvs) {
-	    			if (p.equals(q)) {
+	    			if (p == q) {
 	    				continue;
 	    			}
-	    			newFvs = (ArrayList<Point>) fvs.clone();
 	    			newFvs.remove(p);
 	    			newFvs.remove(q);
+	    			int pos = newFvs.size();
 	    			for (Point o : points) {
-	    				newFvs.add(o);
+	    				newFvs.add(pos, o);
 	    				if (Evaluation.isValide(points, newFvs)) {
 		    				return newFvs;
 		    			}
-	    				newFvs.remove(o);
+	    				newFvs.remove(pos);
 	    			}
+	    			
+	    			newFvs.add(p);
+	    			newFvs.add(q);
 	    		}
 	    }
 	    
@@ -123,5 +188,6 @@ public class DefaultTeam {
 
   public ArrayList<Point> calculFVS(ArrayList<Point> points) {
     return localSearch(points, greedyFVS(points));
+//	  return greedyByCycleness(points);
   }
 }
